@@ -172,16 +172,10 @@ class ColossalAIStrategy(DDPStrategy):
                 module.merge_weights = True
                 module.eval()
         # get state_dict and save
-
-        if not isinstance(self.model, PreTrainedModel):
-            state_dict = unwrapped_model.state_dict()
-            if only_rank0 and dist.get_rank() != 0:
-                return
-            torch.save(state_dict, path)
-        else:
-            self.model.save_pretrained(path)
-            if tokenizer is not None:
-                tokenizer.save_pretrained(path)
+        state_dict = unwrapped_model.state_dict()
+        if only_rank0 and dist.get_rank() != 0:
+            return
+        torch.save(state_dict, path)
 
     def save_optimizer(self, optimizer: Optimizer, path: str, only_rank0: bool = False) -> None:
         if only_rank0:
